@@ -94,7 +94,8 @@ translations = {
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-app = Flask(__name__)
+# Explicitly set static and template folders for clarity
+app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.urandom(24)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -233,7 +234,7 @@ def get_data():
 
 @app.route('/')
 def home():
-    return redirect(url_for('login'))
+    return render_template('dashboard.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -439,12 +440,9 @@ def set_language(lang):
 
 @app.route('/manifest.json')
 def manifest():
-    return send_from_directory('static', 'manifest.json')
+    return send_from_directory(app.static_folder, 'manifest.json')
 
 if __name__ == '__main__':
-    try:
-        socketio.run(app, debug=True, use_reloader=False)
-    except KeyboardInterrupt:
-        print("Arrêt de l'application Flask et du client MQTT.")
-        mqtt_client.loop_stop()
-        mqtt_client.disconnect() 
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    socketio.run(app, debug=True, use_reloader=False, host='0.0.0.0', port=port) 
