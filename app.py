@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit
 import os
 import datetime
@@ -436,6 +436,10 @@ def set_language(lang):
     if lang in ['ar', 'fr']:
         session['lang'] = lang
     return redirect(request.referrer or url_for('dashboard'))
+
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory('static', 'manifest.json')
 
 if __name__ == '__main__':
     try:
