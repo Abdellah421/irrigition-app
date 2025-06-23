@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#43a047">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <title>لوحة التحكم - فلاحي</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div style="text-align:right; margin-bottom:18px;">
+      {% if lang == 'ar' %}
+        <a href="{{ url_for('set_language', lang='fr') }}" style="font-size:1em; padding:6px 16px; background:#f3f3f3; border-radius:6px; border:1px solid #ddd; color:#333; text-decoration:none; font-weight:bold;">Français 🇫🇷</a>
+      {% else %}
+        <a href="{{ url_for('set_language', lang='ar') }}" style="font-size:1em; padding:6px 16px; background:#f3f3f3; border-radius:6px; border:1px solid #ddd; color:#333; text-decoration:none; font-weight:bold;">العربية ar</a>
+      {% endif %}
+    </div>
+    <h1>{{ t['welcome'] }}, {{ user['prenom'] }}</h1>
+    <div class="card" id="esp32-conn" style="margin-bottom:18px;">
+      <h3><i class="fa fa-microchip"></i> {{ t['esp32_conn'] }}</h3>
+      <ul style="list-style:none;padding:0;margin:0;">
+        <li><i class="fa fa-wifi"></i> {{ t['esp32_ip'] }} : <b id="esp32-ip">-</b></li>
+        <li><i class="fa fa-clock"></i> {{ t['last_update'] }} : <span id="esp32-last-update">{{ t['never'] }}</span></li>
+        <li><i class="fa fa-circle" id="esp32-status" style="color:#aaa;"></i> <span id="esp32-status-text">{{ t['disconnected'] }}</span></li>
+      </ul>
+    </div>
+    <div class="card stats">
+      <h3><i class="fa fa-seedling"></i> {{ t['sensor_stats'] }}</h3>
+      <ul>
+        <li><i class="fa fa-temperature-half"></i> {{ t['temperature'] }} : <span id="esp32-temp">-</span> °C</li>
+        <li><i class="fa fa-tint"></i> {{ t['humidity'] }} : <span id="esp32-hum">-</span> %</li>
+        <li><i class="fa fa-mountain-sun"></i> {{ t['soil'] }} : <span id="esp32-sol">-</span></li>
+        <li><i class="fa fa-sun"></i> {{ t['light'] }} : <span id="esp32-lum">-</span></li>
+      </ul>
+    </div>
+    <div class="card voice-control">
+        <h3><i class="fa fa-microphone"></i> {{ t['voice_control'] }}</h3>
+        <p>{{ t['voice_instruction'] }}</p>
+        <button id="voice-command-btn" class="btn"><i class="fa fa-microphone"></i> {{ t['activate'] }}</button>
+        <p id="voice-feedback" style="margin-top: 10px; font-style: italic;"></p>
+    </div>
+    <div class="card manual-control">
+        <h3><i class="fa fa-hand-pointer"></i> {{ t['manual_control'] }}</h3>
+        <p>{{ t['manual_instruction'] }}</p>
+        <div class="manual-buttons">
+            <button id="start-irrigation-btn" class="btn btn-success"><i class="fa fa-play"></i> {{ t['start'] }}</button>
+            <button id="stop-irrigation-btn" class="btn btn-danger"><i class="fa fa-stop"></i> {{ t['stop'] }}</button>
+        </div>
+    </div>
+    <div class="card latest-image">
+        <h3><i class="fa fa-image"></i> {{ t['latest_image'] }}</h3>
+        <div id="image-container" style="text-align: center; padding: 10px;">
+            <p id="no-image-text">{{ t['no_image'] }}</p>
+            <img id="latest-plant-image" src="" alt="{{ t['latest_image'] }}" style="max-width: 100%; border-radius: 8px; display: none;">
+        </div>
+    </div>
+    <div class="card notif">
+      <h3><i class="fa fa-bell"></i> {{ t['notifications_section'] }}</h3>
+      <ul>
+        {% for n in notifications %}
+        <li><i class="fa fa-circle-exclamation"></i> {{ n }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="card guide">
+      <h3><i class="fa fa-book-open"></i> {{ t['guide_section'] }}</h3>
+      <p><i class="fa fa-leaf"></i> {{ guide }}</p>
+    </div>
+    <div class="chart-section card">
+      <h3><i class="fa fa-chart-line"></i> {{ t['humidity_chart'] }}</h3>
+      <canvas id="chartHum"></canvas>
+    </div>
+  </div>
+  <nav class="navbar">
+    <a href="{{ url_for('dashboard') }}" class="active"><i class="fa fa-home"></i><span style="font-size:0.8em;">{{ t['home'] }}</span></a>
+    <a href="{{ url_for('profile') }}"><i class="fa fa-user"></i><span style="font-size:0.8em;">{{ t['profile'] }}</span></a>
+    <a href="{{ url_for('notifications_page') }}"><i class="fa fa-bell"></i><span style="font-size:0.8em;">{{ t['notifications'] }}</span></a>
+    <a href="{{ url_for('guide') }}"><i class="fa fa-book"></i><span style="font-size:0.8em;">{{ t['guide'] }}</span></a>
+    <a href="{{ url_for('logout') }}"><i class="fa fa-sign-out-alt"></i><span style="font-size:0.8em;">{{ t['logout'] }}</span></a>
+  </nav>
+
+  <!-- Pass data from Flask to JS using a data attribute -->
+  <script id="flask-data" type="application/json">
+    {{ {
+      "chartLabels": t['weekdays'],
+      "humidityLabel": t['humidity_label'],
+      "translations": {
+        "connected": t.get('connected', 'متصل'),
+        "disconnected": t.get('disconnected', 'غير متصل'),
+        "new_image_notification": t.get('new_image_notification', 'تم استلام صورة جديدة')
+      }
+    }|tojson|safe }}
+  </script>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html> 

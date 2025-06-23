@@ -1,0 +1,53 @@
+{
+  "name": "FALLAHI SMARTirrig",
+  "short_name": "SMARTirrig",
+  "description": "تطبيق فلاحي للري الذكي | Application d'irrigation intelligente pour agriculteurs.",
+  "lang": "ar",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#e8f5e9",
+  "theme_color": "#43a047",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard | لوحة التحكم",
+      "short_name": "Dashboard",
+      "description": "Go to the dashboard | الذهاب إلى لوحة التحكم",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Notifications | الإشعارات",
+      "short_name": "Notifications",
+      "description": "View notifications | عرض الإشعارات",
+      "url": "/notifications",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+} 

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#43a047">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="فلاحي">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <title>الدليل العملي - فلاحي</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div style="text-align:right; margin-bottom:18px;">
+      {% if lang == 'ar' %}
+        <a href="{{ url_for('set_language', lang='fr') }}" style="font-size:1em; padding:6px 16px; background:#f3f3f3; border-radius:6px; border:1px solid #ddd; color:#333; text-decoration:none; font-weight:bold;">Français 🇫🇷</a>
+      {% else %}
+        <a href="{{ url_for('set_language', lang='ar') }}" style="font-size:1em; padding:6px 16px; background:#f3f3f3; border-radius:6px; border:1px solid #ddd; color:#333; text-decoration:none; font-weight:bold;">العربية ar</a>
+      {% endif %}
+    </div>
+    <h1><i class="fa fa-book-open"></i> {{ t['guide'] }}</h1>
+    <div class="card guide">
+      <p><i class="fa fa-leaf"></i> {{ guide }}</p>
+    </div>
+  </div>
+  <nav class="navbar">
+    <a href="{{ url_for('dashboard') }}"><i class="fa fa-home"></i><span style="font-size:0.8em;">{{ t['home'] }}</span></a>
+    <a href="{{ url_for('profile') }}"><i class="fa fa-user"></i><span style="font-size:0.8em;">{{ t['profile'] }}</span></a>
+    <a href="{{ url_for('notifications_page') }}"><i class="fa fa-bell"></i><span style="font-size:0.8em;">{{ t['notifications'] }}</span></a>
+    <a href="{{ url_for('logout') }}"><i class="fa fa-sign-out-alt"></i><span style="font-size:0.8em;">{{ t['logout'] }}</span></a>
+  </nav>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    document.querySelectorAll('.card').forEach((el, i) => {
+      el.style.opacity = 0;
+      setTimeout(() => {
+        el.style.transition = 'opacity 0.7s cubic-bezier(.39,.575,.565,1.000)';
+        el.style.opacity = 1;
+      }, 200 + i * 120);
+    });
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/static/service-worker.js')
+        .then(reg => console.log('Service worker registered:', reg))
+        .catch(err => console.error('Service worker registration failed:', err));
+    }
+  </script>
+</body>
+</html> 

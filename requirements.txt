@@ -1,0 +1,7 @@
+Flask>=2.0.0
+Flask-SocketIO>=5.0.0
+firebase-admin>=6.0.0
+paho-mqtt
+requests
+beautifulsoup4
+flask-socketio 
