@@ -234,7 +234,22 @@ def get_data():
 
 @app.route('/')
 def home():
-    return render_template('dashboard.html')
+    if 'user_id' not in session:
+        print("[DEBUG] No user_id in session")
+        return redirect(url_for('login'))
+    print("[DEBUG] Session user_id:", session['user_id'])
+    user = get_user_by_id(session['user_id'])
+    print("[DEBUG] Fetched user:", user)
+    if not user:
+        session.pop('user_id', None)
+        print("[DEBUG] User not found, redirecting to login")
+        return redirect(url_for('login'))
+    notifications = get_user_notifications(session['user_id'], limit=10)
+    notification_texts = [n['text'] for n in notifications]
+    plant_name = user.get('plante', 'default')
+    lang = session.get('lang', 'ar')
+    t = translations[lang]
+    return render_template('dashboard.html', t=t, user=user, notifications=notification_texts, plant_name=plant_name, lang=lang)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -293,11 +308,11 @@ def dashboard():
     notification_texts = [n['text'] for n in notifications]
     plant_name = user.get('plante', 'default')
     lang = session.get('lang', 'ar')
-    print('Current language:', lang)
     t = translations[lang]
+    print('Current language:', lang)
     print('DEBUG t:', t)
     print('DEBUG t[weekdays]:', t.get('weekdays'))
-    return render_template('dashboard.html', user=user, notifications=notification_texts, plant_name=plant_name, lang=lang, t=t)
+    return render_template('dashboard.html', t=t, user=user, notifications=notification_texts, plant_name=plant_name, lang=lang)
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():

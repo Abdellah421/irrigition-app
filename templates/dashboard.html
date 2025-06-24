@@ -20,7 +20,7 @@
         <a href="{{ url_for('set_language', lang='ar') }}" style="font-size:1em; padding:6px 16px; background:#f3f3f3; border-radius:6px; border:1px solid #ddd; color:#333; text-decoration:none; font-weight:bold;">العربية ar</a>
       {% endif %}
     </div>
-    <h1>{{ t['welcome'] }}, {{ user['prenom'] }}</h1>
+    <h1>{{ t['welcome'] }}, {{ user['prenom'] if user else '' }}</h1>
     <div class="card" id="esp32-conn" style="margin-bottom:18px;">
       <h3><i class="fa fa-microchip"></i> {{ t['esp32_conn'] }}</h3>
       <ul style="list-style:none;padding:0;margin:0;">
