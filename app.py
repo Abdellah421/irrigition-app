@@ -455,7 +455,15 @@ def set_language(lang):
 
 @app.route('/manifest.json')
 def manifest():
-    return send_from_directory(app.static_folder, 'manifest.json')
+    return send_from_directory(os.path.join(app.static_folder), 'manifest.json')
+
+@app.route('/static/icons/icon-192x192.png')
+def icon_192():
+    return send_from_directory(os.path.join(app.static_folder, 'icons'), 'icon-192x192.png')
+
+@app.route('/static/icons/icon-512x512.png')
+def icon_512():
+    return send_from_directory(os.path.join(app.static_folder, 'icons'), 'icon-512x512.png')
 
 if __name__ == '__main__':
     import os
